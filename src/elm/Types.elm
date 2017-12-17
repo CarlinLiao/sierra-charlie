@@ -1,5 +1,5 @@
 module Types exposing (..)
-
+-- define several custom types made of json-like Elm objects 
 
 type alias EncodedOutgoingMessage =
     { tag : String

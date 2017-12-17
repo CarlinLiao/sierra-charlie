@@ -8,7 +8,7 @@ import Html.MoreEvents exposing (..)
 import List.Extra as List
 import Types exposing (..)
 
-
+-- translate current entire state into an HTML div element with all UI submodules
 renderUI : State -> Html Msg
 renderUI state =
     div []
@@ -33,7 +33,7 @@ renderUI state =
             ]
         ]
 
-
+-- translate current loading progress into a div element loading bar
 renderLoadingProgress : Float -> Html Msg
 renderLoadingProgress loadingProgress =
     let
@@ -51,7 +51,8 @@ renderLoadingProgress loadingProgress =
             []
         ]
 
-
+-- apply the relevant conditions (highlighted/is set to display) and 
+-- calls the relevant method to render a road/road node/road link/route
 renderFeature : String -> Maybe Mode -> Maybe Feature -> Html Msg
 renderFeature featureKind maybeMode maybeFeature =
     let
@@ -97,7 +98,8 @@ renderFeature featureKind maybeMode maybeFeature =
     in
     div ([ id featureId, class "ui-window" ] ++ display) contents
 
-
+-- render road node into the div and changes the UI elements (title, info display, UI options) as
+-- needed depending on if the current node is highlighted, deleted, undeletable, or none mentioned 
 renderRoadNode : Maybe Mode -> String -> RoadNode -> List (Html Msg)
 renderRoadNode maybeMode titlePrefix roadNode =
     let
@@ -150,7 +152,8 @@ renderRoadNode maybeMode titlePrefix roadNode =
     in
     title ++ description ++ buttons ++ location ++ toid ++ roadLinks
 
-
+-- render road link into the div and changes the UI elements (title, info display, UI options) as
+-- needed depending on if the current link is highlighted, deleted, undeletable, or none mentioned 
 renderRoadLink : String -> RoadLink -> List (Html Msg)
 renderRoadLink titlePrefix roadLink =
     let
@@ -207,12 +210,12 @@ renderRoadLink titlePrefix roadLink =
     in
     title ++ description ++ buttons ++ cost ++ toid ++ roadNodes ++ roads
 
-
+-- formats the string describing a road link
 renderRoadLinkDescription : RoadLink -> String
 renderRoadLinkDescription roadLink =
     roadLink.term ++ ", " ++ roadLink.nature
 
-
+-- create div with road ID and description
 renderRoadItem : Road -> Html Msg
 renderRoadItem road =
     let
@@ -224,7 +227,8 @@ renderRoadItem road =
     in
     div [] (toid ++ description)
 
-
+-- render road link into the div and changes the UI elements (title, info display, UI options)
+-- as needed depending on if the current link is highlighted, deleted, or neither 
 renderRoad : String -> Road -> List (Html Msg)
 renderRoad titlePrefix road =
     let
@@ -254,7 +258,9 @@ renderRoad titlePrefix road =
     in
     title ++ description ++ buttons ++ toid ++ roadLinks
 
-
+-- render route and associated nodes and links into the div and changes the UI elements 
+-- (title, info display, UI options) as needed depending on if the current link is 
+-- highlighted, deleted, or neither 
 renderRoute : String -> Route -> List (Html Msg)
 renderRoute titlePrefix route =
     let
@@ -280,7 +286,7 @@ renderRoute titlePrefix route =
     in
     title ++ buttons ++ toid ++ roadNodes ++ roadLinks
 
-
+-- formats the string describing a road depending on if it has an associated term or not
 renderRoadDescription : Road -> String
 renderRoadDescription road =
     case road.term of
@@ -290,7 +296,7 @@ renderRoadDescription road =
         Just term ->
             road.name ++ ", " ++ road.group ++ ", " ++ term
 
-
+-- return the active components in the Views UI menu as a div
 renderViewsWindow : List ViewGroup -> List View -> Bool -> Html Msg
 renderViewsWindow viewGroups activeViews viewInfoVisible =
     let
@@ -381,7 +387,7 @@ renderViewsWindow viewGroups activeViews viewInfoVisible =
     in
     div [ class "ui-window" ] contents
 
-
+-- return the active components in the Models UI menu as a div
 renderModelsWindow : List ModelGroup -> Maybe Model -> Bool -> Html Msg
 renderModelsWindow modelGroups activeModel modelInfoVisible =
     let
@@ -411,13 +417,13 @@ renderModelsWindow modelGroups activeModel modelInfoVisible =
     in
     div [ class "ui-window" ] contents
 
-
+-- wrap definitions into a list of list of list of html messages
 renderDefinition : String -> List (Html Msg)
 renderDefinition lambda =
     renderLabeled "Definition"
         [ pre [] [ code [] [ text lambda ] ] ]
 
-
+-- return the active components in the View Info UI menu as a div
 renderViewInfoWindow : List View -> Bool -> Html Msg
 renderViewInfoWindow activeViews visible =
     let
@@ -437,7 +443,7 @@ renderViewInfoWindow activeViews visible =
     in
     div ([ class "ui-window wide" ] ++ display) contents
 
-
+-- translate an rgba code into a div for the UI with styling
 renderColor : Maybe RGBA -> String -> List (Html Msg)
 renderColor maybeRGBA name =
     case maybeRGBA of
@@ -463,7 +469,7 @@ renderColor maybeRGBA name =
         _ ->
             []
 
-
+-- create a legend based on the colors rendered
 renderModelColors : Maybe ModelColors -> List (Html Msg)
 renderModelColors maybeColors =
     case maybeColors of
@@ -477,7 +483,7 @@ renderModelColors maybeColors =
         _ ->
             []
 
-
+-- create a text div displaying the range of the model
 renderModelRange : Maybe ModelRange -> List (Html Msg)
 renderModelRange maybeRange =
     case maybeRange of
@@ -488,7 +494,7 @@ renderModelRange maybeRange =
         _ ->
             []
 
-
+-- render div with model info, displaying it or not depending on input param
 renderModelInfoWindow : Maybe Model -> Bool -> Html Msg
 renderModelInfoWindow activeModel visible =
     let
@@ -515,7 +521,8 @@ renderModelInfoWindow activeModel visible =
     in
     div ([ class "ui-window wide" ] ++ display) contents
 
-
+-- if there are any routes, render a UI menu listing valid and invalid routes
+-- giving the option to clear or save the routes 
 renderRoutesWindow : List Route -> Html Msg
 renderRoutesWindow routes =
     let
@@ -556,12 +563,13 @@ renderRoutesWindow routes =
     in
     div ([ class "ui-window" ] ++ display) contents
 
-
+-- bundle the routes into a list, render its TOIDs, and label it  
 renderRoutes : String -> List Route -> List (Html Msg)
 renderRoutes label routes =
     renderLabeledList label renderTOIDItem (List.map .toid routes)
 
-
+-- if adjusting, render a UI menu listing deleted nodes, links, and roads,
+-- giving the option to clear or save as JSON
 renderAdjustmentWindow : Maybe Adjustment -> Html Msg
 renderAdjustmentWindow maybeAdjustment =
     let
@@ -602,22 +610,23 @@ renderAdjustmentWindow maybeAdjustment =
     in
     div ([ class "ui-window" ] ++ display) contents
 
-
+-- wrap passed param into a div that will title the ui window
 renderWindowTitle : String -> Html Msg
 renderWindowTitle title =
     div [ class "ui-window-title" ] [ text title ]
 
-
+-- wrap passed param into a div that will subtitle the ui window
 renderWindowSubtitle : String -> Html Msg
 renderWindowSubtitle subtitle =
     div [ class "ui-window-subtitle" ] [ text subtitle ]
 
-
+-- wapped passed param into a div that will have a rendered TOID
 renderTOIDItem : String -> Html Msg
 renderTOIDItem toid =
     div [] [ renderTOID toid ]
 
-
+-- attach functions to an html msg that will select feature by ID on click
+-- and highlight feature on mousein and unhighlight mouseout
 renderTOID : String -> Html Msg
 renderTOID toid =
     a
@@ -627,7 +636,7 @@ renderTOID toid =
         ]
         [ text toid ]
 
-
+-- translate a list of strings into several label divs
 renderLabeledList : String -> (a -> Html Msg) -> List a -> List (Html Msg)
 renderLabeledList label render items =
     let
@@ -647,17 +656,17 @@ renderLabeledList label render items =
         _ ->
             renderLabeled fullLabel [ div [] (List.map render items) ]
 
-
+-- renders a list of labels
 renderLabeled : String -> List (Html Msg) -> List (Html Msg)
 renderLabeled label contents =
     [ renderLabel label ] ++ contents
 
-
+-- render a single label into ui-label div
 renderLabel : String -> Html Msg
 renderLabel label =
     div [ class "ui-label" ] [ text label ]
 
-
+-- pair label and choice divs after creating them
 renderLabeledChoices : String -> List (Html Msg) -> List (Html Msg)
 renderLabeledChoices label actions =
     case actions of
@@ -667,22 +676,22 @@ renderLabeledChoices label actions =
         _ ->
             renderLabeled label (renderChoices actions)
 
-
+-- create a list of divs out of a list of ui-choices 
 renderChoices : List (Html Msg) -> List (Html Msg)
 renderChoices actions =
     [ div [ class "ui-choices" ] (List.map (\action -> action) actions) ]
 
-
+-- create a list of divs out of a list of ui-buttons
 renderButtons : List (Html Msg) -> List (Html Msg)
 renderButtons actions =
     [ div [ class "ui-buttons" ] (List.map (\action -> action) actions) ]
 
-
+-- put a label and an action handler into an elm html msg
 renderAction : String -> Msg -> Html Msg
 renderAction label action =
     a [ onClick action ] [ text label ]
 
-
+-- returns an onClick function with/without a class depending on the isActive boolean
 renderToggle : String -> Bool -> Msg -> Html Msg
 renderToggle label isActive action =
     let
@@ -694,7 +703,8 @@ renderToggle label isActive action =
     in
     a attrs [ text label ]
 
-
+-- returns one onClick function or another with/without a class
+-- depending on if the given boolean param isActive
 renderToggle2 : String -> Bool -> Msg -> Msg -> Html Msg
 renderToggle2 label isActive action activeAction =
     let

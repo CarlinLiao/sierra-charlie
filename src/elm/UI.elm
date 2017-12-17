@@ -8,7 +8,7 @@ import Render exposing (renderUI)
 -- import Task exposing (Task, andThen)
 import Types exposing (..)
 
-
+-- define default variable values to mutate on changes
 defaultState : State
 defaultState =
     { mode = Nothing
@@ -25,7 +25,7 @@ defaultState =
     , modelInfoVisible = False
     }
 
-
+-- change state fields depending 
 update : Msg -> State -> ( State, Cmd Msg )
 update action state =
     case action of
@@ -75,7 +75,7 @@ update action state =
         ToggleModelInfo ->
             ( { state | modelInfoVisible = not state.modelInfoVisible }, none )
 
-
+-- translate a string command ('mode' field) from an incoming packet from JS into an Elm message
 decodeMode : Maybe String -> Maybe Mode
 decodeMode maybeEncoded =
     case maybeEncoded of
@@ -93,7 +93,7 @@ decodeMode maybeEncoded =
                 _ ->
                     Debug.crash ("Invalid mode: " ++ toString encoded)
 
-
+-- translate a string command ('message' field) from incoming packet from JS into an Elm message
 decodeIncomingMessage : Maybe EncodedIncomingMessage -> Msg
 decodeIncomingMessage maybeEncoded =
     case maybeEncoded of
@@ -142,19 +142,20 @@ decodeIncomingMessage maybeEncoded =
 -- incomingAction : Signal Action
 -- incomingAction =
 --   Signal.map decodeIncomingMessage incomingMessage
--- Elm 0.18
+-- -- Elm 0.18
+-- TODO: refactor this for Elm 0.18. necessary for user-initiated changes to the map display.
 
-
+-- on an incoming action, decode the action's message for Elm use
 incomingAction : Sub Msg
 incomingAction =
     incomingMessage decodeIncomingMessage
 
-
+-- on subscription update, run incomingAction
 handleSubs : State -> Sub Msg
 handleSubs model =
     incomingAction
 
-
+-- translates a mode type into a string, if there was a mode in the input
 encodeMode : Maybe Mode -> Maybe String
 encodeMode maybeMode =
     case maybeMode of
@@ -169,14 +170,14 @@ encodeMode maybeMode =
                 GetRouteFromGoogle ->
                     Just "GetRouteFromGoogle"
 
-
+-- turns a string into an elm-object representing an outgoing message by pairing it with a tag object
 encodeMessage : String -> EncodedOutgoingMessage
 encodeMessage tag =
     { tag = tag
     , strings = []
     }
 
-
+-- turns a list of strings into a particular elm-object representing an outgoing message
 encodeStringsMessage : String -> List String -> EncodedOutgoingMessage
 encodeStringsMessage tag strings =
     let
@@ -185,7 +186,7 @@ encodeStringsMessage tag strings =
     in
     { base | strings = strings }
 
-
+-- turns a string into a length-1 list of strings and encodes it
 encodeStringMessage : String -> Maybe String -> EncodedOutgoingMessage
 encodeStringMessage tag maybeString =
     case maybeString of
@@ -195,12 +196,12 @@ encodeStringMessage tag maybeString =
         Just string ->
             encodeStringsMessage tag [ string ]
 
-
+-- prepares and encodes a string identified as a mode-type message
 encodeModeMessage : String -> Maybe Mode -> EncodedOutgoingMessage
 encodeModeMessage tag mode =
     encodeStringMessage tag (encodeMode mode)
 
-
+-- encodes Elm messages into particular formats depending on input type
 encodeOutgoingMessage : OutgoingMessage -> EncodedOutgoingMessage
 encodeOutgoingMessage message =
     case message of
@@ -233,7 +234,7 @@ encodeOutgoingMessage message =
 
 
 
--- #### Gambling on the port call later in this script making this Elm 0.16 section unnecessary ####
+-- -- packages the elm command and sends it back to JS
 -- outgoingMessageMailbox : Mailbox (Maybe EncodedOutgoingMessage)
 -- outgoingMessageMailbox =
 --     Signal.mailbox Nothing
@@ -248,7 +249,7 @@ encodeOutgoingMessage message =
 --             |> andThen (\_ -> Task.succeed Idle)
 --         )
 
-
+-- translates two particular messages into strings
 encodeSpecialOutgoingMessage : SpecialOutgoingMessage -> String
 encodeSpecialOutgoingMessage message =
     case message of
@@ -271,7 +272,7 @@ sendSpecial message =
     --     )
     Cmd.none
 
-
+-- initializes the state of the Elm session
 init : ( State, Cmd Msg )
 init =
     -- ( defaultState, Idle )
@@ -296,9 +297,10 @@ init =
 -- main : Signal Html
 -- main =
 --     ui.html
--- Elm 0.18
+-- -- Elm 0.18
+-- -- the new format of the init/main commands seems to make this section unnecessary
 
-
+-- starts the Elm session
 main : Program Never State Msg
 main =
     Html.program
